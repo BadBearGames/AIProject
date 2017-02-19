@@ -13,17 +13,23 @@ public class CameraControls : MonoBehaviour {
     public float xRotationUpperLimit = 90.0f;
     public float xRotationLowerLimit = 0.0f;
 
+    //default orientation
+    public float xRotationInitial = 30.0f;
+    public float yRotationInitial = 90.0f;
+
+    private bool hasChanged = true; //ignore rotation calculations when no changes are made
+
     //no bounds are specified for yRotation, allows for multiple full 360 rotations
 
     // Use this for initialization
     void Start () {
-		
+        xRotation = xRotationInitial;
+        yRotation = yRotationInitial;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        bool hasChanged = false; //ignore rotation calculations when no changes are made
-
+        
         //Y ROTATION (Y is up, so Y rotation is sideways)
         if (Input.GetKey("left"))
         {
@@ -56,14 +62,15 @@ public class CameraControls : MonoBehaviour {
         //reset orientation
         if (Input.GetKeyDown("space"))
         {
-            xRotation = 0;
-            yRotation = 0;
+            xRotation = xRotationInitial;
+            yRotation = yRotationInitial;
             hasChanged = true;
         }
 
         if (hasChanged)
         {
             RecalculateRotation();
+            hasChanged = false;
         }
     }
 

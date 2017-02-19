@@ -16,11 +16,11 @@ public class PlayerControls : MonoBehaviour {
         //rotate left and right
         if (Input.GetKey("a"))
         {
-            transform.Rotate(0, rotationSpeed, 0);
+            transform.Rotate(0, -rotationSpeed, 0);
         }
         if (Input.GetKey("d"))
         {
-            transform.Rotate(0, -rotationSpeed, 0);
+            transform.Rotate(0, rotationSpeed, 0);
         }
 
         //move forward and back
