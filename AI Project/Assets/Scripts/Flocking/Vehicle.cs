@@ -38,22 +38,32 @@ abstract public class Vehicle : MonoBehaviour {
 		CalcSteeringForces();
 
 		velocity += acceleration * Time.deltaTime;
-		velocity.y = 0; //keeping us on same plane
+		//velocity.y = 0; //keeping us on same plane
 
 		//limit vel to max speed
 		velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
 		transform.forward = velocity.normalized;
 
-		//move the character based on velocity
-		characterController.Move(velocity * Time.deltaTime);
-		//reset acceleration to 0
+        //move the character based on velocity
+        characterController.Move(velocity * Time.deltaTime);
+        //transform.position += velocity;
+        //reset acceleration to 0
 		acceleration = Vector3.zero;
+
+        if (characterController.isGrounded)
+        {
+            velocity.y = 0;
+        }
 	}
 
 	abstract protected void CalcSteeringForces();
 
 	protected void ApplyForce(Vector3 steeringForce)
 	{
+        if (!characterController.isGrounded)
+        {
+            acceleration.y = -5f; //gravity
+        }
 		acceleration += steeringForce / mass;
 	}
 
