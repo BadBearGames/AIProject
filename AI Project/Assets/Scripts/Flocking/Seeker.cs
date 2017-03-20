@@ -44,7 +44,7 @@ public class Seeker : Vehicle {
             ultimateForce.y += 10f;
             ultimateForce += Alignment(Flock.Direction) * alignmentWeight;
             ultimateForce += Cohesion(Flock.Centroid) * cohesionWeight;
-            ultimateForce += Separation(sepDistance) * seperationWeight;
+            ultimateForce += Separation(Flock.spacing) * seperationWeight;
             ultimateForce += Wander() * wanderWeight;
 
             ultimateForce.y = 0;

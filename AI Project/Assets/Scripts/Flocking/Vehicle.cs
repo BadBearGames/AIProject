@@ -13,6 +13,8 @@ abstract public class Vehicle : MonoBehaviour {
 	//Flock reference
 	private Flock flock;
 
+    private bool isGrounded;
+
 	//Assign character controller in inspector
 	public CharacterController characterController;
 	#endregion
@@ -38,19 +40,29 @@ abstract public class Vehicle : MonoBehaviour {
 		CalcSteeringForces();
 
 		velocity += acceleration * Time.deltaTime;
-		//velocity.y = 0; //keeping us on same plane
-
-		//limit vel to max speed
-		velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
+        //velocity.y = 0; //keeping us on same plane
+        
+        //limit vel to max speed
+        velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
 		transform.forward = velocity.normalized;
 
+        //amplify movement speed based on Flock control if applicable
+        float speedup = 1.0f;
+        if (Flock != null)
+        {
+            speedup = Flock.speedBoost;
+        }
+
         //move the character based on velocity
-        characterController.Move(velocity * Time.deltaTime);
-        //transform.position += velocity;
+        characterController.Move(velocity * Time.deltaTime * speedup);
         //reset acceleration to 0
 		acceleration = Vector3.zero;
 
-        if (characterController.isGrounded)
+        //check if airborn
+        isGrounded = characterController.isGrounded;
+
+        //if on ground, make sure you're not still falling
+        if (isGrounded)
         {
             velocity.y = 0;
         }
@@ -60,10 +72,11 @@ abstract public class Vehicle : MonoBehaviour {
 
 	protected void ApplyForce(Vector3 steeringForce)
 	{
-        if (!characterController.isGrounded)
+        if (!isGrounded) //if not on ground, then fall
         {
             acceleration.y = -5f; //gravity
         }
+        //Force = Mass * acceleration
 		acceleration += steeringForce / mass;
 	}
 
