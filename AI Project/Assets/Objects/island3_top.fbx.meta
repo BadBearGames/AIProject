@@ -1,34 +1,16 @@
 fileFormatVersion: 2
-guid: 68abd265785a1fa4a9555a2be294d471
-timeCreated: 1487365556
-licenseType: Free
+guid: a836474bd8b164f4cb525c7b82ffe23b
+timeCreated: 1489994739
+licenseType: Pro
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: group
-    100002: group1
-    100004: //RootNode
-    100006: pasted__rock_i
-    100008: pCylinder1
-    100010: rock_i
-    400000: group
-    400002: group1
-    400004: //RootNode
-    400006: pasted__rock_i
-    400008: pCylinder1
-    400010: rock_i
-    2300000: pasted__rock_i
-    2300002: pCylinder1
-    2300004: rock_i
-    3300000: pasted__rock_i
-    3300002: pCylinder1
-    3300004: rock_i
+    100000: //RootNode
+    400000: //RootNode
+    2300000: //RootNode
+    3300000: //RootNode
     4300000: pCylinder1
-    4300002: rock_i
-    4300004: pasted__rock_i
-    6400000: pasted__rock_i
-    6400002: pCylinder1
-    6400004: rock_i
+    6400000: //RootNode
     9500000: //RootNode
   materials:
     importMaterials: 1

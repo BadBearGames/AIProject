@@ -155,6 +155,28 @@ ModelImporter:
     4300038: pasted__pasted__pCube2
     4300040: pCylinder1
     4300042: pasted__pCylinder1
+    6400000: pasted__pasted__pasted__pasted__pCube1
+    6400002: pasted__pasted__pasted__pCube1
+    6400004: pasted__pasted__pasted__pCube1 1
+    6400006: pasted__pasted__pasted__pCube1 2
+    6400008: pasted__pasted__pasted__pCube1 3
+    6400010: pasted__pasted__pCube1
+    6400012: pasted__pasted__pCube1 1
+    6400014: pasted__pasted__pCube1 2
+    6400016: pasted__pasted__pCube1 3
+    6400018: pasted__pasted__pCube1 4
+    6400020: pasted__pasted__pCube1 5
+    6400022: pasted__pasted__pCube2
+    6400024: pasted__pCube1
+    6400026: pasted__pCube1 1
+    6400028: pasted__pCube1 2
+    6400030: pasted__pCube1 3
+    6400032: pasted__pCube2
+    6400034: pasted__pCube2 1
+    6400036: pasted__pCylinder1
+    6400038: pCube1
+    6400040: pCube2
+    6400042: pCylinder1
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -182,7 +204,7 @@ ModelImporter:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
-    addColliders: 0
+    addColliders: 1
     importBlendShapes: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
