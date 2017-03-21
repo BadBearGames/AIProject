@@ -39,13 +39,19 @@ public class Seeker : Vehicle {
 	
 	protected override void CalcSteeringForces ()
 	{
-		ultimateForce.y += 10f;
-		ultimateForce += Alignment(Flock.Direction) * alignmentWeight;
-		ultimateForce += Cohesion (Flock.Centroid) * cohesionWeight;
-		ultimateForce += Separation (sepDistance) * seperationWeight;
-		ultimateForce += Wander () * wanderWeight;
+        if (Flock != null)
+        {
+            ultimateForce.y += 10f;
+            ultimateForce += Alignment(Flock.Direction) * alignmentWeight;
+            ultimateForce += Cohesion(Flock.Centroid) * cohesionWeight;
+            ultimateForce += Separation(Flock.spacing) * seperationWeight;
+            ultimateForce += Wander() * wanderWeight;
 
-		ultimateForce = Vector3.ClampMagnitude(ultimateForce, maxForce);
-		ApplyForce(ultimateForce);
+            ultimateForce.y = 0;
+
+            ultimateForce = Vector3.ClampMagnitude(ultimateForce, maxForce);
+            
+            ApplyForce(ultimateForce);
+        }
 	}
 }

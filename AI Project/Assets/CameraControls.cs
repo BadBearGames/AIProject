@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CameraControls : MonoBehaviour {
 
@@ -71,6 +72,17 @@ public class CameraControls : MonoBehaviour {
         {
             RecalculateRotation();
             hasChanged = false;
+        }
+
+        if (Input.GetKeyDown("1") && SceneManager.GetActiveScene().buildIndex != 0)
+        {
+            //change scene 1
+            SceneManager.LoadScene(0);
+        }
+        if (Input.GetKeyDown("2") && SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            //change scene 2
+            SceneManager.LoadScene(1);
         }
     }
 
