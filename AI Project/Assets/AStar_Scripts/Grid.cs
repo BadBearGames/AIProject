@@ -1,4 +1,14 @@
-﻿using System.Collections;
+﻿//*****************************************
+//
+//Author: Zane Draper
+//Purpose: Sets up the grid and handles all A* algorithms
+//
+//Some assistance from the professor in class work and notes
+//I'm still new to Unity so I looked over a couple of tutorials on using gizmos
+//
+//*****************************************
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,13 +20,11 @@ public class Grid : MonoBehaviour
 	public LayerMask obstacleMask;
 	public LayerMask terrainMask;
     public LayerMask playerMask;
-
-    public float pointRadius;
-    float pointDiameter;
-
+    
     //used for sizing the grid
-    public Vector2 gridSize;
-    int gridSizeX, gridSizeY;
+    Vector2 gridSize;
+    int sizeX, sizeY;
+    float r, d;
 
     //holds all points on the grid
     Point[,] grid;
@@ -40,9 +48,12 @@ public class Grid : MonoBehaviour
         agentIndex = new Index();
 
         //determines the size of the grid
-        pointDiameter = pointRadius * 2;
-        gridSizeX = Mathf.RoundToInt(gridSize.x / pointDiameter);
-        gridSizeY = Mathf.RoundToInt(gridSize.y / pointDiameter);
+        gridSize = new Vector2(44, 95);
+        r = 1.0f;
+        d = r * 2;
+        sizeX = Mathf.RoundToInt(gridSize.x / d);
+        sizeY = Mathf.RoundToInt(gridSize.y / d);
+        grid = new Point[sizeX, sizeY];
 
         //Build the grid of points
         BuildGrid();
@@ -57,38 +68,52 @@ public class Grid : MonoBehaviour
     //Method - creates the 2D grid, which accounts for varying terrain heights
 	void BuildGrid()
 	{
-        grid = new Point[gridSizeX, gridSizeY];
-        Vector3 worldBottomLeft = transform.position - Vector3.right * gridSize.x / 2 - Vector3.forward * gridSize.y / 2;
 		Vector3 above = new Vector3(0, 2, 0);
 
-        for (int x = 0; x < gridSizeX; x++)
+        //cycle through th points on the grid
+        for (int x = 0; x < sizeX; x++)
         {
-            for (int y = 0; y < gridSizeY; y++)
+            for (int y = 0; y < sizeY; y++)
             {
-                Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * pointDiameter + pointRadius) + Vector3.forward * (y * pointDiameter + pointRadius);
+                //the origin of the grid
+                Vector3 worldPoint = transform.position - Vector3.right * gridSize.x / 2 - Vector3.forward * gridSize.y / 2;
+                worldPoint += Vector3.right * (x * d + r) + Vector3.forward * (y * d + r);
 
+                //the state at any location on the grid
                 pointState state;
+                //used for determining the location of ray hits
                 RaycastHit hitInfo;
 
-                if ((Physics.CheckCapsule(worldPoint, worldPoint, pointRadius / 2, terrainMask)))
+                //check for hits on the terrain
+                if ((Physics.CheckCapsule(worldPoint, worldPoint, r / 2, terrainMask)))
                 {
-                    if(Physics.CheckCapsule(worldPoint, worldPoint, pointRadius, playerMask))
+                    //check for hits on the player mask, showing the location of the player
+                    if(Physics.CheckCapsule(worldPoint, worldPoint, r, playerMask))
                     {
+                        //set the player location on the grid
                         agentIndex = new Index(x, y);
                     }
 
+                    //checks for the height of the terrain to have the grid match the terrain
                     Physics.Raycast(worldPoint + above * 10, Vector3.down, out hitInfo, 30.0f, terrainMask);
 
+                    //change the height of the grid point to match the terrain
                     worldPoint = new Vector3(worldPoint.x, hitInfo.point.y + .4f, worldPoint.z);
 
-                    if (!(Physics.CheckCapsule(worldPoint, worldPoint, pointRadius, obstacleMask)))
+                    //check for an overlap with obstacles
+                    if (!(Physics.CheckCapsule(worldPoint, worldPoint, r, obstacleMask)))
                     {
+                        //change the state of the grid point 
                         state = pointState.good;
+                        //add to list of valid locations
                         validLocs.Add(new Index(x, y));
                     }
+                    //mark state of blocked
                     else state = pointState.blocked;
                 }
+                //mark state as no terrain
                 else state = pointState.space;
+                //add point to grid
                 grid[x, y] = new Point(worldPoint, new Index(x, y), state);
             }
         }
