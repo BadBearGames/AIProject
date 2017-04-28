@@ -12,6 +12,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum UnitColor
+{
+	Black,
+	Yellow,
+	Blue,
+	White
+}
+
 public class Grid : MonoBehaviour
 {
     //VARIABLES
@@ -39,9 +47,19 @@ public class Grid : MonoBehaviour
     public Index targetIndex;
     public Index agentIndex;
 
+	//Dictionary for strength values
+	public Dictionary<UnitColor, int> unitStrengths = new Dictionary<UnitColor, int>();
+	public List<Unit> units = new List<Unit>();
+
     //Method - called on start
     void Start()
     {
+		//Add strengths to dicitonary 
+		unitStrengths.Add(UnitColor.Black, 4);
+		unitStrengths.Add (UnitColor.Yellow, 3);
+		unitStrengths.Add (UnitColor.Blue, 2);
+		unitStrengths.Add (UnitColor.White, 1);
+
         //instantiating variables
         validLocs = new List<Index>();
         targetIndex = new Index();
@@ -129,7 +147,7 @@ public class Grid : MonoBehaviour
         {
             foreach (Point n in grid)
             {
-                if(n.state == pointState.path)
+                //if(n.state == pointState.path)
                 {
                     Gizmos.DrawCube(n.loc, Vector3.one);
                 }
@@ -268,9 +286,25 @@ public class Grid : MonoBehaviour
         targetIndex = validLocs[randIndex];
     }
 
+	/// <summary>
+	/// I assume this will be different from build grid but maybe we should combine those
+	/// </summary>
+	void GenerateInfluenceMap()
+	{
+		
+	}
+
     //Method - this keeps track of the A* agent and builds a new path when the agent arrives at the destination
     public void Update()
     {
+		//Input
+		if (Input.GetKeyDown(KeyCode.Space))
+		{
+			//Generate new influence map
+			GenerateInfluenceMap();
+		}
+
+
         //the agent erases its path when it arrives at the destination
         if(agentObject.path.Count == 0)
         {
