@@ -6,5 +6,8 @@ public class Unit : MonoBehaviour
 {
 	//Vars
 	public UnitColor unitType;
-	public int gridIndex;
+    public int gridIndexX;
+    public int gridIndexY;
+    public int strength = 2;
+    public controlState cntrlState;
 }

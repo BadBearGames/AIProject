@@ -13,6 +13,7 @@ using UnityEngine;
 
 //An enum that controls the state of the Point object
 public enum pointState { good, blocked, space, path, visited };
+public enum controlState { red, blue, grey };
 
 //A custom Priority Queue that prioritizes the f value found in the Point class
 public class PriorityQueue : MonoBehaviour {
@@ -102,7 +103,12 @@ public class Point
 {
     //VARIABLES
     public Vector3 loc;
+    public float percentage;
     public pointState state;
+    public controlState controlSt;
+    public float blueInfluence;
+    public float redInfluence;
+    public float influence;
 
     //values for A*
     public float f, g, h;
@@ -120,6 +126,7 @@ public class Point
     public Point(Vector3 vLoc, Index cIndex, pointState pointState, Point parent = null)
     {
         state = pointState;
+        controlSt = controlState.grey;
 
         loc = vLoc;
         parentPoint = parent;
@@ -152,6 +159,21 @@ public class Point
             return 14 * xDis + 10 * (yDis - xDis);
     }
 
+    public Color GetColor()
+    {
+        if(redInfluence > 0 && blueInfluence == 0)
+            return new Color(redInfluence, 0, 0);
+        else if (blueInfluence > 0 && redInfluence == 0)
+            return new Color(0, 0, 1, blueInfluence);
+        else
+            return new Color(1, 0, 1, (blueInfluence+redInfluence)/2);
+    }
+
+    public void Reset()
+    {
+        redInfluence = 0;
+        blueInfluence = 0;
+    }
 }
 
 //This holds the value of an index for a 2d array

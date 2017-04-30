@@ -1,34 +1,21 @@
-﻿//*****************************************
-//
-//Author: Zane Draper
-//Purpose: Sets up the grid and handles all A* algorithms
-//
-//Some assistance from the professor in class work and notes
-//I'm still new to Unity so I looked over a couple of tutorials on using gizmos
-//
-//*****************************************
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum UnitColor
+public enum Team
 {
-	Black,
-	Yellow,
-	Blue,
-	White
+    Red,
+    Blue
 }
 
-public class Grid : MonoBehaviour
+public class Grid2 : MonoBehaviour
 {
     //VARIABLES
 
     //layermasks for using physics colliders for height of grid points
-	public LayerMask obstacleMask;
-	public LayerMask terrainMask;
-    public LayerMask playerMask;
-    
+    public LayerMask terrainMask;
+    public Unit[] objects;
+
     //used for sizing the grid
     Vector2 gridSize;
     int sizeX, sizeY;
@@ -38,27 +25,25 @@ public class Grid : MonoBehaviour
     Point[,] grid;
     //holds index points for all valid locations in the grid
     List<Index> validLocs;
-
-    //The game objects used for the agent and the target
-    public AgentSeek agentObject;
+    
     public GameObject targetObject;
 
     //the current index of the gameobjects (their locations on the grid)
     public Index targetIndex;
     public Index agentIndex;
 
-	//Dictionary for strength values
-	public Dictionary<UnitColor, int> unitStrengths = new Dictionary<UnitColor, int>();
-	public List<Unit> units = new List<Unit>();
+    //Dictionary for strength values
+    public Dictionary<UnitColor, int> unitStrengths = new Dictionary<UnitColor, int>();
+    public List<Unit> units = new List<Unit>();
 
     //Method - called on start
     void Start()
     {
-		//Add strengths to dicitonary 
-		unitStrengths.Add(UnitColor.Black, 4);
-		unitStrengths.Add (UnitColor.Yellow, 3);
-		unitStrengths.Add (UnitColor.Blue, 2);
-		unitStrengths.Add (UnitColor.White, 1);
+        //Add strengths to dicitonary 
+        unitStrengths.Add(UnitColor.Black, 4);
+        unitStrengths.Add(UnitColor.Yellow, 3);
+        unitStrengths.Add(UnitColor.Blue, 2);
+        unitStrengths.Add(UnitColor.White, 1);
 
         //instantiating variables
         validLocs = new List<Index>();
@@ -77,16 +62,16 @@ public class Grid : MonoBehaviour
         BuildGrid();
 
         //Set the location of the target
-        SetTargetLocation();
+        //SetTargetLocation();
 
         //get the path to the target and pass it into the A* agent
-        agentObject.path = GetPath(agentIndex, targetIndex);
-	}
+        //agentObject.path = GetPath(agentIndex, targetIndex);
+    }
 
     //Method - creates the 2D grid, which accounts for varying terrain heights
-	void BuildGrid()
-	{
-		Vector3 above = new Vector3(0, 2, 0);
+    void BuildGrid()
+    {
+        Vector3 above = new Vector3(0, 2, 0);
 
         //cycle through th points on the grid
         for (int x = 0; x < sizeX; x++)
@@ -106,11 +91,11 @@ public class Grid : MonoBehaviour
                 if ((Physics.CheckCapsule(worldPoint, worldPoint, r / 2, terrainMask)))
                 {
                     //check for hits on the player mask, showing the location of the player
-                    if(Physics.CheckCapsule(worldPoint, worldPoint, r, playerMask))
-                    {
-                        //set the player location on the grid
-                        agentIndex = new Index(x, y);
-                    }
+                   // if (Physics.CheckCapsule(worldPoint, worldPoint, r, playerMask))
+                   // {
+                   //     //set the player location on the grid
+                   //     agentIndex = new Index(x, y);
+                   // }
 
                     //checks for the height of the terrain to have the grid match the terrain
                     Physics.Raycast(worldPoint + above * 10, Vector3.down, out hitInfo, 30.0f, terrainMask);
@@ -119,15 +104,15 @@ public class Grid : MonoBehaviour
                     worldPoint = new Vector3(worldPoint.x, hitInfo.point.y + .4f, worldPoint.z);
 
                     //check for an overlap with obstacles
-                    if (!(Physics.CheckCapsule(worldPoint, worldPoint, r, obstacleMask)))
-                    {
-                        //change the state of the grid point 
-                        state = pointState.good;
-                        //add to list of valid locations
-                        validLocs.Add(new Index(x, y));
-                    }
+                   // if (!(Physics.CheckCapsule(worldPoint, worldPoint, r, obstacleMask)))
+                   // {
+                   //     //change the state of the grid point 
+                    state = pointState.good;
+                   //     //add to list of valid locations
+                   //     validLocs.Add(new Index(x, y));
+                   // }
                     //mark state of blocked
-                    else state = pointState.blocked;
+                   // else state = pointState.blocked;
                 }
                 //mark state as no terrain
                 else state = pointState.space;
@@ -135,23 +120,34 @@ public class Grid : MonoBehaviour
                 grid[x, y] = new Point(worldPoint, new Index(x, y), state);
             }
         }
+        GenerateInfluenceMap();
     }
 
     //Method - Used for showing the path of the A* agent
-	void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-
+        
         //cycles through grid points, shows the ones that make up the path
         if (grid != null)
         {
             foreach (Point n in grid)
             {
-                //if(n.state == pointState.path)
+                if (n.controlSt == controlState.grey)
                 {
+                    Gizmos.color = Color.grey;
                     Gizmos.DrawCube(n.loc, Vector3.one);
                 }
-
+                else if (n.controlSt == controlState.red)
+                {
+                    Gizmos.color = n.GetColor();
+                    Gizmos.DrawCube(n.loc, Vector3.one);
+                }
+                else if (n.controlSt == controlState.blue)
+                {
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawCube(n.loc, Vector3.one);
+                }
             }
         }
 
@@ -172,7 +168,7 @@ public class Grid : MonoBehaviour
         open.Push(startPoint);
 
         //keep looping while the Priority Queue isn't empty
-        while(open.Length > 0)
+        while (open.Length > 0)
         {
             //get the first Point (will always have the lowest f value)
             Point q = open.Pop();
@@ -281,31 +277,116 @@ public class Grid : MonoBehaviour
 
         //sets the location of the target to the location of the point on the grid
         Point newPoint = grid[validLocs[randIndex].x, validLocs[randIndex].y];
-        targetObject.transform.position = new Vector3(newPoint.loc.x, newPoint.loc.y+1, newPoint.loc.z);
+        targetObject.transform.position = new Vector3(newPoint.loc.x, newPoint.loc.y + 1, newPoint.loc.z);
         //set the new index of the target
         targetIndex = validLocs[randIndex];
     }
 
-	/// <summary>
-	/// I assume this will be different from build grid but maybe we should combine those
-	/// </summary>
-	void GenerateInfluenceMap()
-	{
-		
-	}
+    /// <summary>
+    /// I assume this will be different from build grid but maybe we should combine those
+    /// </summary>
+    void GenerateInfluenceMap()
+    {
+        //
+        foreach(Point n in grid)
+        {
+            n.controlSt = controlState.grey;
+        }
+
+        Vector3 originCorner = transform.position - Vector3.right * gridSize.x / 2 - Vector3.forward * gridSize.y / 2;
+        grid[0, 0].controlSt = controlState.blue;
+        foreach(Unit n in objects)
+        {
+            Vector3 temp = n.transform.position - originCorner;
+            int x = (int)(temp.x / d);
+            int z = (int)(temp.z / d);
+            n.gridIndexX = x;
+            n.gridIndexY = z;
+            if (n.cntrlState == controlState.red)
+            {
+                grid[x, z].controlSt = controlState.red;
+                grid[x, z].redInfluence = 1;
+            }
+            if (n.cntrlState == controlState.blue)
+            {
+                grid[x, z].controlSt = controlState.blue;
+                grid[x, z].blueInfluence = 1;
+            }
+            //print(n.strength);
+            for (int i = 1; i <= n.strength; i++)
+            {
+                /*
+                */
+
+                for (int l = 1; l <= n.strength; l++)
+                {
+                    int maxX = x + l;
+                    int minX = x - l;
+
+                    for (int o = 1; o <= n.strength; o++)
+                    {
+                        int maxZ = z + o;
+                        int minZ = z - o;
+
+                        float curStrength = (l + o) / 2;
+
+                        if (maxZ < sizeY)
+                        {
+                            grid[x, maxZ].controlSt = n.cntrlState;
+                            grid[x, maxZ].redInfluence = 1 - curStrength / n.strength;
+                        }
+                        if (minZ >= 0)
+                        {
+                            grid[x, minZ].controlSt = n.cntrlState;
+                            grid[x, minZ].redInfluence = 1 - curStrength / n.strength;
+                        }
+                        if (maxX < sizeX)
+                        {
+                            grid[maxX, z].controlSt = n.cntrlState;
+                            grid[maxX, z].redInfluence = 1 - curStrength / n.strength;
+                        }
+                        if (minX >= 0)
+                        {
+                            grid[minX, z].controlSt = n.cntrlState;
+                            grid[minX, z].redInfluence = 1 - curStrength / n.strength;
+                        }
+                    }
+                }
+                /*
+                if (maxZ < sizeY)
+                {
+                    grid[x, maxZ].controlSt = controlState.red;
+                }
+                if (minZ >= 0)
+                {
+                    grid[x, minZ].controlSt = controlState.red;
+                }
+                if (maxX < sizeX)
+                {
+                    grid[maxX, z].controlSt = controlState.red;
+                }
+                if (minX >= 0)
+                {
+                    grid[minX, z].controlSt = controlState.red;
+                }
+                */
+            }
+        }
+
+    }
 
     //Method - this keeps track of the A* agent and builds a new path when the agent arrives at the destination
     public void Update()
     {
-		//Input
-		if (Input.GetKeyDown(KeyCode.Space))
-		{
-			//Generate new influence map
-			GenerateInfluenceMap();
-		}
-        
+        //Input
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            //Generate new influence map
+            GenerateInfluenceMap();
+        }
+
         //the agent erases its path when it arrives at the destination
-        if(agentObject.path.Count == 0)
+       /* if (agentObject.path.Count == 0)
         {
             //the agent is now at the targets old location
             agentIndex = targetIndex;
@@ -313,7 +394,7 @@ public class Grid : MonoBehaviour
             SetTargetLocation();
             //creates a new path
             agentObject.path = GetPath(agentIndex, targetIndex);
-        }
+        }*/
     }
 
 }
