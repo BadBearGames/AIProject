@@ -14,7 +14,7 @@ public class Grid2 : MonoBehaviour
 
     //layermasks for using physics colliders for height of grid points
     public LayerMask terrainMask;
-    public Unit[] objects;
+    Unit[] objects;
 
     //used for sizing the grid
     Vector2 gridSize;
@@ -39,6 +39,8 @@ public class Grid2 : MonoBehaviour
     //Method - called on start
     void Start()
     {
+        objects = (Unit[])GameObject.FindObjectsOfType<Unit>();
+
         //Add strengths to dicitonary 
         unitStrengths.Add(UnitColor.Black, 4);
         unitStrengths.Add(UnitColor.Yellow, 3);
@@ -60,6 +62,7 @@ public class Grid2 : MonoBehaviour
 
         //Build the grid of points
         BuildGrid();
+
 
         //Set the location of the target
         //SetTargetLocation();
@@ -135,7 +138,7 @@ public class Grid2 : MonoBehaviour
             {
                 if (n.controlSt == controlState.grey)
                 {
-                    Gizmos.color = Color.grey;
+                    Gizmos.color = Color.white;
                     Gizmos.DrawCube(n.loc, Vector3.one);
                 }
                 else if (n.controlSt == controlState.red)
@@ -145,141 +148,12 @@ public class Grid2 : MonoBehaviour
                 }
                 else if (n.controlSt == controlState.blue)
                 {
-                    Gizmos.color = Color.blue;
+                    Gizmos.color = n.GetColor();
                     Gizmos.DrawCube(n.loc, Vector3.one);
                 }
             }
         }
 
-    }
-
-    //Method - This is the main body of A*
-    List<Point> GetPath(Index start, Index end)
-    {
-        //get the start and end Point from the grid
-        Point startPoint = grid[start.x, start.y];
-        Point endPoint = grid[end.x, end.y];
-
-        //create the open and closed lists
-        PriorityQueue open = new PriorityQueue();
-        List<Point> closed = new List<Point>();
-
-        //push the starting Point int the Open PriorityQueue
-        open.Push(startPoint);
-
-        //keep looping while the Priority Queue isn't empty
-        while (open.Length > 0)
-        {
-            //get the first Point (will always have the lowest f value)
-            Point q = open.Pop();
-
-            //get the surround points, (only does the for 4 direct sides)
-            Point[] nextMoves = new Point[4];
-            nextMoves[0] = grid[q.index.x, q.index.y + 1];
-            nextMoves[1] = grid[q.index.x + 1, q.index.y];
-            nextMoves[2] = grid[q.index.x, q.index.y - 1];
-            nextMoves[3] = grid[q.index.x - 1, q.index.y];
-
-            //cycle through the new point
-            foreach (Point p in nextMoves)
-            {
-                //check if the current Point is the end point
-                if (p.Equals(endPoint))
-                {
-                    p.parentPoint = q;
-                    closed.Add(p);
-                    return ReturnPathList(endPoint, startPoint);
-                }
-
-                //calculate this Point heuristic values
-                p.g = q.g + q.Distance(p);
-                p.h = endPoint.Distance(p);
-                p.f = p.g + p.h;
-
-                //if the Point isn't over terrain or is blocked, ignore
-                if (p.state == pointState.blocked || p.state == pointState.space)
-                {
-                    continue;
-                }
-                //check to see if this Point is already in the closed list
-                else if (closed.Contains(p))
-                {
-                    //remove that preexisting value if its worse then the current one
-                    int index = closed.IndexOf(p);
-                    if (closed[index].f <= p.f)
-                        continue;
-                    else
-                    {
-                        closed.RemoveAt(index);
-                        p.parentPoint = q;
-                        open.Push(p);
-                    }
-                }
-                //check to see if this Point is already in the open list
-                else if (open.Contains(p))
-                {
-                    //remove that preexisting value if its worse then the current one
-                    int index = open.IndexOf(p);
-                    if (open.GetFAt(index) <= p.f)
-                        continue;
-                    else
-                    {
-                        open.RemoveAt(index);
-                        p.parentPoint = q;
-                        open.Push(p);
-                    }
-                }
-                //if the Point doesn't already exist in either list, add it to the open list
-                else
-                {
-                    p.parentPoint = q;
-                    open.Push(p);
-                }
-
-            }
-            //set the state to visited
-            q.state = pointState.visited;
-            //add to the closed list (has already been removed from the open list)
-            closed.Add(q);
-        }
-
-        //get the path from the closed list
-        return ReturnPathList(endPoint, startPoint);
-    }
-
-    //Method - puts the path Points into a list by themselves for easy use
-    public List<Point> ReturnPathList(Point end, Point start)
-    {
-        //cycles through the path by parents
-        Point cur = end;
-        List<Point> path = new List<Point>();
-
-        //the start Point has a null parent slot so these will catch it when it reaches the head of the path
-        while (cur != start && cur != null)
-        {
-            //insert the point at the head of the list so we can work from the front
-            path.Insert(0, cur);
-            //highlight the path blue
-            cur.state = pointState.path;
-            //move to the next Point on the path
-            cur = cur.parentPoint;
-        }
-
-        //return the new path
-        return path;
-    }
-
-    //Method - changes the location of the target
-    public void SetTargetLocation()
-    {
-        //chooses a random value from the array of valid locations on the grid
-        int randIndex = Random.Range(0, validLocs.Count - 1);
-
-        //sets the location of the target to the location of the point on the grid
-        Point newPoint = grid[validLocs[randIndex].x, validLocs[randIndex].y];
-        targetObject.transform.position = new Vector3(newPoint.loc.x, newPoint.loc.y + 1, newPoint.loc.z);
-        //set the new index of the target
-        targetIndex = validLocs[randIndex];
     }
 
     /// <summary>
@@ -291,10 +165,11 @@ public class Grid2 : MonoBehaviour
         foreach(Point n in grid)
         {
             n.controlSt = controlState.grey;
+            n.Reset();
         }
 
         Vector3 originCorner = transform.position - Vector3.right * gridSize.x / 2 - Vector3.forward * gridSize.y / 2;
-        grid[0, 0].controlSt = controlState.blue;
+
         foreach(Unit n in objects)
         {
             Vector3 temp = n.transform.position - originCorner;
@@ -302,74 +177,102 @@ public class Grid2 : MonoBehaviour
             int z = (int)(temp.z / d);
             n.gridIndexX = x;
             n.gridIndexY = z;
-            if (n.cntrlState == controlState.red)
+            
+            for (int l = 1; l <= n.strength*2; l++)
             {
-                grid[x, z].controlSt = controlState.red;
-                grid[x, z].redInfluence = 1;
-            }
-            if (n.cntrlState == controlState.blue)
-            {
-                grid[x, z].controlSt = controlState.blue;
-                grid[x, z].blueInfluence = 1;
-            }
-            //print(n.strength);
-            for (int i = 1; i <= n.strength; i++)
-            {
-                /*
-                */
+                int maxX = x + l;
+                int minX = x - l;
 
-                for (int l = 1; l <= n.strength; l++)
-                {
-                    int maxX = x + l;
-                    int minX = x - l;
+                float xStrength = l / 2.0f;
 
-                    for (int o = 1; o <= n.strength; o++)
-                    {
-                        int maxZ = z + o;
-                        int minZ = z - o;
-
-                        float curStrength = (l + o) / 2;
-
-                        if (maxZ < sizeY)
-                        {
-                            grid[x, maxZ].controlSt = n.cntrlState;
-                            grid[x, maxZ].redInfluence = 1 - curStrength / n.strength;
-                        }
-                        if (minZ >= 0)
-                        {
-                            grid[x, minZ].controlSt = n.cntrlState;
-                            grid[x, minZ].redInfluence = 1 - curStrength / n.strength;
-                        }
-                        if (maxX < sizeX)
-                        {
-                            grid[maxX, z].controlSt = n.cntrlState;
-                            grid[maxX, z].redInfluence = 1 - curStrength / n.strength;
-                        }
-                        if (minX >= 0)
-                        {
-                            grid[minX, z].controlSt = n.cntrlState;
-                            grid[minX, z].redInfluence = 1 - curStrength / n.strength;
-                        }
-                    }
-                }
-                /*
-                if (maxZ < sizeY)
-                {
-                    grid[x, maxZ].controlSt = controlState.red;
-                }
-                if (minZ >= 0)
-                {
-                    grid[x, minZ].controlSt = controlState.red;
-                }
                 if (maxX < sizeX)
                 {
-                    grid[maxX, z].controlSt = controlState.red;
+                    grid[maxX, z].controlSt = n.cntrlState;
+                    if(n.cntrlState == controlState.red)
+                        grid[maxX, z].redInfluence += xStrength / n.strength;
+                    else if(n.cntrlState == controlState.blue)
+                        grid[maxX, z].blueInfluence += xStrength / n.strength;
                 }
                 if (minX >= 0)
                 {
-                    grid[minX, z].controlSt = controlState.red;
+                    grid[minX, z].controlSt = n.cntrlState;
+                    if (n.cntrlState == controlState.red)
+                        grid[minX, z].redInfluence += xStrength / n.strength;
+                    else if (n.cntrlState == controlState.blue)
+                        grid[minX, z].blueInfluence += xStrength / n.strength;
                 }
-                */
+
+                for (int o = 1; o <= n.strength*2; o++)
+                {
+                    int maxZ = z + o;
+                    int minZ = z - o;
+
+                    float curStrength;
+                    if (l < o) curStrength = o / 2.0f;
+                    else curStrength = l / 2.0f;
+
+                    float yStrength = o / 2.0f;
+
+                    if (l == 1)
+                    {
+                        if (maxZ < sizeY)
+                        {
+                            grid[x, maxZ].controlSt = n.cntrlState;
+                            if (n.cntrlState == controlState.red)
+                                grid[x, maxZ].redInfluence += yStrength / n.strength;
+                            else if (n.cntrlState == controlState.blue)
+                                grid[x, maxZ].blueInfluence += yStrength / n.strength;
+                        }
+
+                        if (minZ >= 0)
+                        {
+                            grid[x, minZ].controlSt = n.cntrlState;
+                            if (n.cntrlState == controlState.red)
+                                grid[x, minZ].redInfluence += yStrength / n.strength;
+                            else if (n.cntrlState == controlState.blue)
+                                grid[x, minZ].blueInfluence += yStrength / n.strength;
+                        }
+                    }
+
+                    if (maxX < sizeX)
+                    {
+                        if (maxZ < sizeY)
+                        {
+                            grid[maxX, maxZ].controlSt = n.cntrlState;
+                            if (n.cntrlState == controlState.red)
+                                grid[maxX, maxZ].redInfluence += curStrength / n.strength;
+                            else if (n.cntrlState == controlState.blue)
+                                grid[maxX, maxZ].blueInfluence += curStrength / n.strength;
+                        }
+                        if(minZ >= 0)
+                        {
+                            grid[maxX, minZ].controlSt = n.cntrlState;
+                            if (n.cntrlState == controlState.red)
+                                grid[maxX, minZ].redInfluence += curStrength / n.strength;
+                            else if (n.cntrlState == controlState.blue)
+                                grid[maxX, minZ].blueInfluence += curStrength / n.strength;
+                        }
+                    }
+                    if (minX >= 0)
+                    {
+                        if (maxZ < sizeY)
+                        {
+                            grid[minX, maxZ].controlSt = n.cntrlState;
+                            if (n.cntrlState == controlState.red)
+                                grid[minX, maxZ].redInfluence += curStrength / n.strength;
+                            else if (n.cntrlState == controlState.blue)
+                                grid[minX, maxZ].blueInfluence += curStrength / n.strength;
+                        }
+                        if (minZ >= 0)
+                        {
+                            grid[minX, minZ].controlSt = n.cntrlState;
+                            if (n.cntrlState == controlState.red)
+                                grid[minX, minZ].redInfluence += curStrength / n.strength;
+                            else if (n.cntrlState == controlState.blue)
+                                grid[minX, minZ].blueInfluence += curStrength / n.strength;
+                        }
+                    }
+                }
             }
         }
 

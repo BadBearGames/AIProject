@@ -108,7 +108,6 @@ public class Point
     public controlState controlSt;
     public float blueInfluence;
     public float redInfluence;
-    public float influence;
 
     //values for A*
     public float f, g, h;
@@ -127,6 +126,9 @@ public class Point
     {
         state = pointState;
         controlSt = controlState.grey;
+
+        redInfluence = 0;
+        blueInfluence = 0;
 
         loc = vLoc;
         parentPoint = parent;
@@ -161,12 +163,16 @@ public class Point
 
     public Color GetColor()
     {
-        if(redInfluence > 0 && blueInfluence == 0)
-            return new Color(redInfluence, 0, 0);
-        else if (blueInfluence > 0 && redInfluence == 0)
-            return new Color(0, 0, 1, blueInfluence);
-        else
-            return new Color(1, 0, 1, (blueInfluence+redInfluence)/2);
+        if (redInfluence >= 1.0f) redInfluence = 1.0f;
+        if (blueInfluence >= 1.0f) blueInfluence = 1.0f;
+
+        if (redInfluence > 0 && blueInfluence == 0)
+            return new Color(1, redInfluence, redInfluence);
+        if (blueInfluence > 0 && redInfluence == 0)
+            return new Color(blueInfluence, blueInfluence, 1);
+        if (blueInfluence > 0 && redInfluence > 0)
+            return new Color(blueInfluence, 1, redInfluence);
+        return Color.white;
     }
 
     public void Reset()
