@@ -5,6 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class CameraControls : MonoBehaviour {
 
+    public GameObject blackUnit;
+    public GameObject yellowUnit;
+    public GameObject blueUnit;
+    public GameObject whiteUnit;
+    public GameObject mousePlacer;
+
     public float rotationSpeed = 1.0f;
     public float panSpeed = 1.0f;
     public float zoomSpeed = 1.0f;
@@ -12,10 +18,10 @@ public class CameraControls : MonoBehaviour {
     private float xRotation = 0.0f;
     private float yRotation = 0.0f;
     
-    public float xCoord = 0.0f;
-    public float yCoord = 0.0f;
+    private float xCoord = 0.0f;
+    private float yCoord = 0.0f;
 
-    public float zoom = 0.0f;
+    private float zoom = 0.0f;
 
     //default orientation
     public float xRotationInitial = 30.0f;
@@ -126,6 +132,10 @@ public class CameraControls : MonoBehaviour {
         {
             xRotation = xRotationInitial;
             yRotation = yRotationInitial;
+            xCoord = xCoordInitial;
+            yCoord = yCoordInitial;
+            zoom = zoomInitial;
+
             hasChanged = true;
         }
 
@@ -139,18 +149,22 @@ public class CameraControls : MonoBehaviour {
         if (Input.GetKeyDown("1"))
         {
             //spawn black unit
+            Instantiate(blackUnit, mousePlacer.transform.position, Quaternion.identity);
         }
         if (Input.GetKeyDown("2"))
         {
             //spawn yellow unit
+            Instantiate(yellowUnit, mousePlacer.transform.position, Quaternion.identity);
         }
         if (Input.GetKeyDown("3"))
         {
             //spawn blue unit
+            Instantiate(blueUnit, mousePlacer.transform.position, Quaternion.identity);
         }
         if (Input.GetKeyDown("4"))
         {
             //spawn white unit
+            Instantiate(whiteUnit, mousePlacer.transform.position, Quaternion.identity);
         }
 
         /*
