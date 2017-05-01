@@ -265,7 +265,7 @@ public class Grid2 : MonoBehaviour
         }
 
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.N))
         {
             objects = (Unit[])GameObject.FindObjectsOfType<Unit>();
             GenerateInfluenceMap();
