@@ -41,6 +41,8 @@ public class CameraControls : MonoBehaviour {
 
     private Transform camera=null;
 
+    private bool spawnRedTeam = true; //are units spawning for red-team or blue-team
+
     //no bounds are specified for yRotation, allows for multiple full 360 rotations
 
     // Use this for initialization
@@ -149,35 +151,48 @@ public class CameraControls : MonoBehaviour {
         if (Input.GetKeyDown("1"))
         {
             //spawn black unit
-            Instantiate(blackUnit, mousePlacer.transform.position, Quaternion.identity);
+            GameObject go = Instantiate(blackUnit, mousePlacer.transform.position, Quaternion.identity);
+            //the prefab spawns red units by default, only change unit's team if we are trying NOT to spawn red units
+            if (!spawnRedTeam)
+            {
+                Unit u = go.GetComponent<Unit>();
+                u.cntrlState = controlState.blue;
+            }
         }
         if (Input.GetKeyDown("2"))
         {
             //spawn yellow unit
-            Instantiate(yellowUnit, mousePlacer.transform.position, Quaternion.identity);
+            GameObject go = Instantiate(yellowUnit, mousePlacer.transform.position, Quaternion.identity);
+            if (!spawnRedTeam)
+            {
+                Unit u = go.GetComponent<Unit>();
+                u.cntrlState = controlState.blue;
+            }
         }
         if (Input.GetKeyDown("3"))
         {
             //spawn blue unit
-            Instantiate(blueUnit, mousePlacer.transform.position, Quaternion.identity);
+            GameObject go = Instantiate(blueUnit, mousePlacer.transform.position, Quaternion.identity);
+            if (!spawnRedTeam)
+            {
+                Unit u = go.GetComponent<Unit>();
+                u.cntrlState = controlState.blue;
+            }
         }
         if (Input.GetKeyDown("4"))
         {
             //spawn white unit
-            Instantiate(whiteUnit, mousePlacer.transform.position, Quaternion.identity);
+            GameObject go = Instantiate(whiteUnit, mousePlacer.transform.position, Quaternion.identity);
+            if (!spawnRedTeam)
+            {
+                Unit u = go.GetComponent<Unit>();
+                u.cntrlState = controlState.blue;
+            }
         }
-
-        /*
-        if (Input.GetKeyDown("1") && SceneManager.GetActiveScene().buildIndex != 0)
+        if (Input.GetKeyDown("5")) //switch teams to spawn for
         {
-            //change scene 1
-            SceneManager.LoadScene(0);
+            spawnRedTeam = !spawnRedTeam;
         }
-        if (Input.GetKeyDown("2") && SceneManager.GetActiveScene().buildIndex != 1)
-        {
-            //change scene 2
-            SceneManager.LoadScene(1);
-        }*/
     }
 
     private void RecalculateRotation()
