@@ -166,15 +166,53 @@ public class Point
     //returns the color of the point based on the influences of both teams
     public Color GetColor()
     {
-        if (redInfluence >= 1.0f) redInfluence = 1.0f;
-        if (blueInfluence >= 1.0f) blueInfluence = 1.0f;
+        if (redInfluence > 1.0f || blueInfluence > 1.0f)
+        {
+            if (redInfluence > blueInfluence)
+            {
+                if ((redInfluence / blueInfluence) >= 3.0f)
+                {
+                    redInfluence = 1.0f;
+                    blueInfluence = 0.0f;
+                }
+                else
+                {
+                    blueInfluence = blueInfluence / redInfluence;
+                    redInfluence = 1.0f;
+                }
+            }
+            else if (blueInfluence > redInfluence)
+            {
+                if ((blueInfluence / redInfluence) >= 3.0f)
+                {
+                    blueInfluence = 1.0f;
+                    redInfluence = 0.0f;
+                }
+                else
+                {
+                    redInfluence = redInfluence / blueInfluence;
+                    blueInfluence = 1.0f;
+                }
+            }
+            else
+            {
+                redInfluence = 1f;
+                blueInfluence = 1f;
+            }
+        }
+
+        if (blueInfluence > 1.0f) blueInfluence = 1.0f;
+        if (redInfluence > 1.0f) redInfluence = 1.0f;
+
+        float tempRed = 1f - redInfluence;
+        float tempBlue = 1f - blueInfluence;
 
         if (redInfluence > 0 && blueInfluence == 0)
-            return new Color(1, redInfluence, redInfluence);
+            return new Color(1, tempRed, tempRed);
         if (blueInfluence > 0 && redInfluence == 0)
-            return new Color(blueInfluence, blueInfluence, 1);
+            return new Color(tempBlue, tempBlue, 1);
         if (blueInfluence > 0 && redInfluence > 0)
-            return new Color(blueInfluence, 1, redInfluence);
+            return new Color(tempBlue, 1, tempRed);
         return Color.white;
     }
 

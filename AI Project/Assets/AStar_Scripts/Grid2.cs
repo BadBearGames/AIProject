@@ -75,7 +75,7 @@ public class Grid2 : MonoBehaviour
                 //the origin of the grid
                 Vector3 worldPoint = transform.position - Vector3.right * gridSize.x / 2 - Vector3.forward * gridSize.y / 2;
                 worldPoint += Vector3.right * (x * d + r) + Vector3.forward * (y * d + r);
-
+                worldPoint.y += 5;
                 //the state at any location on the grid
                 pointState state = pointState.space;
 
@@ -146,7 +146,13 @@ public class Grid2 : MonoBehaviour
             int z = (int)(temp.z / d);
             n.gridIndexX = x;
             n.gridIndexY = z;
-            
+
+            grid[x, z].controlSt = n.cntrlState;
+            if (n.cntrlState == controlState.red)
+                grid[x, z].redInfluence = 0;
+            else if (n.cntrlState == controlState.blue)
+                grid[x, z].blueInfluence = 0;
+
             //cycle through indices around the objects
             //provides a influence value based on the objects team
             //also checks to make sure we don't try to color out of bounds
@@ -161,17 +167,17 @@ public class Grid2 : MonoBehaviour
                 {
                     grid[maxX, z].controlSt = n.cntrlState;
                     if(n.cntrlState == controlState.red)
-                        grid[maxX, z].redInfluence += xStrength / n.strength;
+                        grid[maxX, z].redInfluence = 1 - (xStrength / n.strength);
                     else if(n.cntrlState == controlState.blue)
-                        grid[maxX, z].blueInfluence += xStrength / n.strength;
+                        grid[maxX, z].blueInfluence = 1 - (xStrength / n.strength);
                 }
                 if (minX >= 0)
                 {
                     grid[minX, z].controlSt = n.cntrlState;
                     if (n.cntrlState == controlState.red)
-                        grid[minX, z].redInfluence += xStrength / n.strength;
+                        grid[minX, z].redInfluence = 1 - (xStrength / n.strength);
                     else if (n.cntrlState == controlState.blue)
-                        grid[minX, z].blueInfluence += xStrength / n.strength;
+                        grid[minX, z].blueInfluence = 1 - (xStrength / n.strength);
                 }
 
                 for (int o = 1; o <= n.strength*2; o++)
@@ -191,18 +197,18 @@ public class Grid2 : MonoBehaviour
                         {
                             grid[x, maxZ].controlSt = n.cntrlState;
                             if (n.cntrlState == controlState.red)
-                                grid[x, maxZ].redInfluence += yStrength / n.strength;
+                                grid[x, maxZ].redInfluence += 1 - (yStrength / n.strength);
                             else if (n.cntrlState == controlState.blue)
-                                grid[x, maxZ].blueInfluence += yStrength / n.strength;
+                                grid[x, maxZ].blueInfluence += 1 - (yStrength / n.strength);
                         }
 
                         if (minZ >= 0)
                         {
                             grid[x, minZ].controlSt = n.cntrlState;
                             if (n.cntrlState == controlState.red)
-                                grid[x, minZ].redInfluence += yStrength / n.strength;
+                                grid[x, minZ].redInfluence += 1 - (yStrength / n.strength);
                             else if (n.cntrlState == controlState.blue)
-                                grid[x, minZ].blueInfluence += yStrength / n.strength;
+                                grid[x, minZ].blueInfluence += 1 - (yStrength / n.strength);
                         }
                     }
 
@@ -212,17 +218,17 @@ public class Grid2 : MonoBehaviour
                         {
                             grid[maxX, maxZ].controlSt = n.cntrlState;
                             if (n.cntrlState == controlState.red)
-                                grid[maxX, maxZ].redInfluence += curStrength / n.strength;
+                                grid[maxX, maxZ].redInfluence += 1 - (curStrength / n.strength);
                             else if (n.cntrlState == controlState.blue)
-                                grid[maxX, maxZ].blueInfluence += curStrength / n.strength;
+                                grid[maxX, maxZ].blueInfluence += 1 - (curStrength / n.strength);
                         }
                         if(minZ >= 0)
                         {
                             grid[maxX, minZ].controlSt = n.cntrlState;
                             if (n.cntrlState == controlState.red)
-                                grid[maxX, minZ].redInfluence += curStrength / n.strength;
+                                grid[maxX, minZ].redInfluence += 1 - (curStrength / n.strength);
                             else if (n.cntrlState == controlState.blue)
-                                grid[maxX, minZ].blueInfluence += curStrength / n.strength;
+                                grid[maxX, minZ].blueInfluence += 1 - (curStrength / n.strength);
                         }
                     }
                     if (minX >= 0)
@@ -231,17 +237,17 @@ public class Grid2 : MonoBehaviour
                         {
                             grid[minX, maxZ].controlSt = n.cntrlState;
                             if (n.cntrlState == controlState.red)
-                                grid[minX, maxZ].redInfluence += curStrength / n.strength;
+                                grid[minX, maxZ].redInfluence += 1 - (curStrength / n.strength);
                             else if (n.cntrlState == controlState.blue)
-                                grid[minX, maxZ].blueInfluence += curStrength / n.strength;
+                                grid[minX, maxZ].blueInfluence += 1 - (curStrength / n.strength);
                         }
                         if (minZ >= 0)
                         {
                             grid[minX, minZ].controlSt = n.cntrlState;
                             if (n.cntrlState == controlState.red)
-                                grid[minX, minZ].redInfluence += curStrength / n.strength;
+                                grid[minX, minZ].redInfluence += 1 - (curStrength / n.strength);
                             else if (n.cntrlState == controlState.blue)
-                                grid[minX, minZ].blueInfluence += curStrength / n.strength;
+                                grid[minX, minZ].blueInfluence += 1 - (curStrength / n.strength);
                         }
                     }
                 }
