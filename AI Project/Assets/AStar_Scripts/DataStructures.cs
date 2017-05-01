@@ -13,6 +13,7 @@ using UnityEngine;
 
 //An enum that controls the state of the Point object
 public enum pointState { good, blocked, space, path, visited };
+//represent the control in each area
 public enum controlState { red, blue, grey };
 
 //A custom Priority Queue that prioritizes the f value found in the Point class
@@ -106,6 +107,7 @@ public class Point
     public float percentage;
     public pointState state;
     public controlState controlSt;
+    //respresent percentage of influence in an area by different teams
     public float blueInfluence;
     public float redInfluence;
 
@@ -161,6 +163,7 @@ public class Point
             return 14 * xDis + 10 * (yDis - xDis);
     }
 
+    //returns the color of the point based on the influences of both teams
     public Color GetColor()
     {
         if (redInfluence >= 1.0f) redInfluence = 1.0f;
@@ -175,6 +178,7 @@ public class Point
         return Color.white;
     }
 
+    //resets the influences of the point
     public void Reset()
     {
         redInfluence = 0;
