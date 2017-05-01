@@ -16,6 +16,8 @@ public class Grid2 : MonoBehaviour
     public LayerMask terrainMask;
     Unit[] objects;
 
+    bool showMap = true;
+
     //used for sizing the grid
     Vector2 gridSize;
     int sizeX, sizeY;
@@ -88,8 +90,9 @@ public class Grid2 : MonoBehaviour
                 //the state at any location on the grid
                 pointState state;
                 //used for determining the location of ray hits
-                RaycastHit hitInfo;
+                //RaycastHit hitInfo;
 
+                /*
                 //check for hits on the terrain
                 if ((Physics.CheckCapsule(worldPoint, worldPoint, r / 2, terrainMask)))
                 {
@@ -117,8 +120,9 @@ public class Grid2 : MonoBehaviour
                     //mark state of blocked
                    // else state = pointState.blocked;
                 }
+                */
                 //mark state as no terrain
-                else state = pointState.space;
+                state = pointState.space;
                 //add point to grid
                 grid[x, y] = new Point(worldPoint, new Index(x, y), state);
             }
@@ -130,26 +134,29 @@ public class Grid2 : MonoBehaviour
     void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        
-        //cycles through grid points, shows the ones that make up the path
-        if (grid != null)
+
+        if (showMap)
         {
-            foreach (Point n in grid)
+            //cycles through grid points, shows the ones that make up the path
+            if (grid != null)
             {
-                if (n.controlSt == controlState.grey)
+                foreach (Point n in grid)
                 {
-                    Gizmos.color = Color.white;
-                    Gizmos.DrawCube(n.loc, Vector3.one);
-                }
-                else if (n.controlSt == controlState.red)
-                {
-                    Gizmos.color = n.GetColor();
-                    Gizmos.DrawCube(n.loc, Vector3.one);
-                }
-                else if (n.controlSt == controlState.blue)
-                {
-                    Gizmos.color = n.GetColor();
-                    Gizmos.DrawCube(n.loc, Vector3.one);
+                    if (n.controlSt == controlState.grey)
+                    {
+                        Gizmos.color = Color.white;
+                        Gizmos.DrawCube(n.loc, Vector3.one);
+                    }
+                    else if (n.controlSt == controlState.red)
+                    {
+                        Gizmos.color = n.GetColor();
+                        Gizmos.DrawCube(n.loc, Vector3.one);
+                    }
+                    else if (n.controlSt == controlState.blue)
+                    {
+                        Gizmos.color = n.GetColor();
+                        Gizmos.DrawCube(n.loc, Vector3.one);
+                    }
                 }
             }
         }
@@ -281,23 +288,17 @@ public class Grid2 : MonoBehaviour
     //Method - this keeps track of the A* agent and builds a new path when the agent arrives at the destination
     public void Update()
     {
-        //Input
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.M))
         {
-            //Generate new influence map
-            GenerateInfluenceMap();
+            showMap = !showMap;
         }
 
-        //the agent erases its path when it arrives at the destination
-       /* if (agentObject.path.Count == 0)
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            //the agent is now at the targets old location
-            agentIndex = targetIndex;
-            //sets a new location for the target
-            SetTargetLocation();
-            //creates a new path
-            agentObject.path = GetPath(agentIndex, targetIndex);
-        }*/
+            objects = (Unit[])GameObject.FindObjectsOfType<Unit>();
+            GenerateInfluenceMap();
+        }
     }
 
 }
