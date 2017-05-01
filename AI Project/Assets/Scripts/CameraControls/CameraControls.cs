@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class CameraControls : MonoBehaviour {
 
+    public Canvas helpUI;
+
     public GameObject blackUnit;
     public GameObject yellowUnit;
     public GameObject blueUnit;
@@ -139,6 +141,11 @@ public class CameraControls : MonoBehaviour {
             zoom = zoomInitial;
 
             hasChanged = true;
+        }
+        //show/hide UI
+        if (Input.GetKeyDown("h"))
+        {
+            helpUI.enabled = !helpUI.enabled;
         }
 
         if (hasChanged)
